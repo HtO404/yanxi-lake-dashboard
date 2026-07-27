@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>严西湖水智眸智慧监测平台</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+:root{
+  --bg:#050b1a; --panel:rgba(10,25,55,.55); --panel-border:rgba(0,180,255,.25);
+  --cyan:#00e5ff; --blue:#2e7bff; --green:#00ffa2; --yellow:#ffd166; --orange:#ff9f43; --red:#ff5c7a;
+  --txt:#d7ecff; --txt-dim:#7fa8c9; --glow:0 0 18px rgba(0,229,255,.18);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei","PingFang SC",sans-serif;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:-2;
+  background:radial-gradient(1200px 600px at 50% -10%,rgba(0,90,200,.25),transparent 60%),
+             radial-gradient(800px 500px at 90% 110%,rgba(0,190,255,.12),transparent 60%),
+             radial-gradient(700px 400px at 5% 100%,rgba(46,123,255,.10),transparent 60%),#050b1a;}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background-image:linear-gradient(rgba(0,150,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(0,150,255,.045) 1px,transparent 1px);
+  background-size:46px 46px;}
+/* ============ Header ============ */
+.header{position:relative;height:86px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,rgba(6,20,48,.9),rgba(6,20,48,.2));border-bottom:1px solid rgba(0,180,255,.2)}
+.header .title{font-size:30px;font-weight:800;letter-spacing:6px;
+  background:linear-gradient(90deg,#7fd8ff,#fff,#7fd8ff);-webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 0 30px rgba(0,190,255,.35)}
+.header .sub{position:absolute;bottom:6px;font-size:11px;color:var(--txt-dim);letter-spacing:3px}
+.header .left,.header .right{position:absolute;top:0;height:100%;display:flex;align-items:center;gap:14px;font-size:12px;color:var(--txt-dim)}
+.header .left{left:22px}
+.header .right{right:22px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border:1px solid rgba(0,229,255,.4);border-radius:20px;
+  background:rgba(0,229,255,.08);color:var(--cyan);font-size:12px;box-shadow:var(--glow)}
+.badge .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.25}}
+#clock{font-size:16px;color:#bfe6ff;font-family:Consolas,monospace;letter-spacing:1px}
+.deco-line{position:absolute;bottom:-1px;left:0;width:100%;height:2px;
+  background:linear-gradient(90deg,transparent,var(--cyan) 30%,#7fd8ff 50%,var(--cyan) 70%,transparent);opacity:.6;
+  animation:scan 6s linear infinite;background-size:200% 100%}
+@keyframes scan{to{background-position:200% 0}}
+/* ============ Layout（照片居中 · 三列环绕 · 底部通栏） ============ */
+.dash{display:flex;flex-direction:column;gap:12px;padding:12px 14px 16px}
+.dash-main{display:grid;grid-template-columns:24% 1fr 24%;gap:12px}
+.col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.bottom{display:grid;grid-template-columns:1.5fr 1fr;gap:12px}
+.panel{position:relative;background:var(--panel);border:1px solid var(--panel-border);border-radius:8px;
+  backdrop-filter:blur(6px);box-shadow:inset 0 0 30px rgba(0,120,255,.05);overflow:hidden}
+.panel::before,.panel::after{content:"";position:absolute;width:14px;height:14px;border:2px solid var(--cyan);z-index:2}
+.panel::before{top:-1px;left:-1px;border-right:none;border-bottom:none;border-radius:6px 0 0 0}
+.panel::after{bottom:-1px;right:-1px;border-left:none;border-top:none;border-radius:0 0 6px 0}
+.p-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 8px;border-bottom:1px solid rgba(0,180,255,.15)}
+.p-title{font-size:15px;font-weight:700;color:#cdeeff;display:flex;align-items:center;gap:8px}
+.p-title::before{content:"";width:4px;height:16px;border-radius:2px;background:linear-gradient(180deg,var(--cyan),var(--blue));box-shadow:0 0 8px var(--cyan)}
+.p-tag{font-size:10px;color:var(--txt-dim);letter-spacing:1px}
+.p-body{padding:10px 12px}
+/* ============ 河湖长信息栏 ============ */
+.chief-card{display:flex;gap:12px;align-items:center}
+.chief-logo{width:74px;height:74px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 35% 30%,#0f4d8f,#062a55);border:2px solid rgba(0,229,255,.5);box-shadow:var(--glow);
+  font-size:30px}
+.chief-info h3{font-size:16px;color:#fff;margin-bottom:4px}
+.chief-info .role{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;color:#062a55;font-weight:700;
+  background:linear-gradient(90deg,#00e5ff,#7fd8ff);margin-bottom:6px}
+.chief-info p{font-size:12px;color:var(--txt-dim);line-height:1.6}
+.duty{margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.duty div{background:rgba(0,120,255,.08);border:1px solid rgba(0,180,255,.15);border-radius:6px;padding:8px 10px;font-size:12px;color:#bfe6ff;line-height:1.5}
+.duty b{color:var(--cyan);display:block;margin-bottom:2px;font-size:12px}
+/* ============ KPI 卡片 ============ */
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.kpi{position:relative;background:rgba(4,18,45,.6);border:1px solid rgba(0,180,255,.18);border-radius:8px;padding:10px 8px 8px;text-align:center;cursor:pointer;transition:.25s}
+.kpi:hover{border-color:var(--cyan);transform:translateY(-2px);box-shadow:var(--glow)}
+.kpi.active{border-color:var(--cyan);background:rgba(0,150,255,.12)}
+.kpi .k-name{font-size:11px;color:var(--txt-dim);white-space:nowrap}
+.kpi .k-val{font-size:20px;font-weight:800;font-family:Consolas,monospace;margin:3px 0 1px;color:var(--cyan);text-shadow:0 0 12px rgba(0,229,255,.5)}
+.kpi .k-unit{font-size:10px;color:var(--txt-dim)}
+.kpi .k-state{position:absolute;top:5px;right:6px;width:8px;height:8px;border-radius:50%}
+.st-good{background:var(--green);box-shadow:0 0 6px var(--green)}
+.st-warn{background:var(--yellow);box-shadow:0 0 6px var(--yellow)}
+.st-bad{background:var(--red);box-shadow:0 0 6px var(--red)}
+.sim-note{font-size:10px;color:#5c7f9e;margin-top:6px;line-height:1.5}
+/* ============ 控件 ============ */
+.ctrl-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 12px 0}
+.seg{display:inline-flex;border:1px solid rgba(0,180,255,.3);border-radius:6px;overflow:hidden}
+.seg button{background:transparent;border:none;color:var(--txt-dim);font-size:12px;padding:5px 12px;cursor:pointer;transition:.2s;border-right:1px solid rgba(0,180,255,.15)}
+.seg button:last-child{border-right:none}
+.seg button.on{background:linear-gradient(180deg,rgba(0,229,255,.25),rgba(0,120,255,.25));color:#fff;text-shadow:0 0 8px var(--cyan)}
+.seg button:hover{color:#fff}
+.ctrl-label{font-size:12px;color:var(--txt-dim)}
+/* ============ 预警 ============ */
+.warn-list{max-height:190px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+.warn-list::-webkit-scrollbar{width:4px}
+.warn-list::-webkit-scrollbar-thumb{background:rgba(0,180,255,.35);border-radius:2px}
+.warn-item{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:6px;font-size:12px;
+  background:rgba(255,92,122,.07);border:1px solid rgba(255,92,122,.25);animation:warnIn .5s}
+.warn-item.lv-warn{background:rgba(255,209,102,.06);border-color:rgba(255,209,102,.3)}
+.warn-item .w-ico{flex:none;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;
+  background:rgba(255,92,122,.15);color:var(--red)}
+.warn-item.lv-warn .w-ico{background:rgba(255,209,102,.12);color:var(--yellow)}
+.warn-item .w-txt{flex:1;color:#e8f4ff;line-height:1.45}
+.warn-item .w-txt small{display:block;color:var(--txt-dim);font-size:10px}
+.warn-item .w-tag{flex:none;font-size:10px;padding:2px 8px;border-radius:10px;border:1px solid currentColor}
+.warn-item .w-tag.red{color:var(--red)} .warn-item .w-tag.yel{color:var(--yellow)}
+@keyframes warnIn{from{opacity:0;transform:translateX(14px)}}
+.warn-empty{text-align:center;color:var(--green);font-size:13px;padding:24px 0}
+/* ============ 巡查记录 ============ */
+.patrol{max-height:220px;overflow-y:auto;padding-left:6px}
+.patrol::-webkit-scrollbar{width:4px}
+.patrol::-webkit-scrollbar-thumb{background:rgba(0,180,255,.35);border-radius:2px}
+.pt-item{position:relative;padding:0 4px 14px 18px;border-left:1px dashed rgba(0,180,255,.35)}
+.pt-item:last-child{padding-bottom:2px}
+.pt-item::before{content:"";position:absolute;left:-5px;top:3px;width:9px;height:9px;border-radius:50%;
+  background:var(--bg);border:2px solid var(--cyan);box-shadow:0 0 8px rgba(0,229,255,.6)}
+.pt-item .pt-date{font-size:11px;color:var(--cyan);font-family:Consolas,monospace}
+.pt-item .pt-t{font-size:13px;color:#e8f4ff;margin:2px 0}
+.pt-item .pt-d{font-size:11px;color:var(--txt-dim);line-height:1.5}
+.pt-item .pt-s{display:inline-block;margin-top:3px;font-size:10px;padding:1px 8px;border-radius:10px}
+.pt-ok{color:var(--green);border:1px solid rgba(0,255,162,.4)}
+.pt-follow{color:var(--yellow);border:1px solid rgba(255,209,102,.4)}
+/* ============ 图表容器 ============ */
+.chart{width:100%}
+#trendChart{height:340px}
+#heatChart{height:250px}
+#gradeChart{height:215px}
+#radarChart{height:250px}
+#wqiGauge{height:170px}
+/* ============ 照片轮播 ============ */
+.caro{position:relative;width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;
+  border:1px solid rgba(0,180,255,.25);background:#03101f;box-shadow:inset 0 0 20px rgba(0,120,255,.1)}
+.caro-track{display:flex;height:100%;transition:transform .7s cubic-bezier(.6,.05,.2,1)}
+.caro-track img{width:100%;height:100%;object-fit:cover;flex:none;display:block}
+.caro-mask{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(3,16,31,.15) 0%,transparent 22%,transparent 62%,rgba(3,16,31,.75) 100%)}
+.caro-cap{position:absolute;left:12px;bottom:26px;right:12px;font-size:12px;color:#dff1ff;
+  text-shadow:0 1px 6px rgba(0,0,0,.7);letter-spacing:.5px;z-index:2}
+.caro-cap::before{content:"📷 ";}
+.caro-btn{position:absolute;top:50%;transform:translateY(-50%);width:30px;height:44px;border:none;cursor:pointer;
+  background:rgba(3,20,44,.5);color:#bfe6ff;font-size:24px;line-height:1;z-index:3;transition:.2s;backdrop-filter:blur(3px)}
+.caro-btn:hover{background:rgba(0,150,255,.45);color:#fff}
+.caro-btn.prev{left:0;border-radius:0 6px 6px 0}
+.caro-btn.next{right:0;border-radius:6px 0 0 6px}
+.caro-dots{position:absolute;left:0;right:0;bottom:8px;display:flex;gap:5px;justify-content:center;flex-wrap:wrap;padding:0 30px;z-index:2}
+.caro-dots i{width:7px;height:7px;border-radius:50%;background:rgba(191,230,255,.35);cursor:pointer;transition:.2s}
+.caro-dots i.on{background:var(--cyan);box-shadow:0 0 6px var(--cyan);width:16px;border-radius:4px}
+/* ============ 照片轮播（中列居中焦点 · 4:3） ============ */
+.caro.big{aspect-ratio:4/3;height:auto;width:100%;max-width:760px;margin:0 auto;display:block;
+  box-shadow:0 0 40px rgba(0,160,255,.30),inset 0 0 26px rgba(0,120,255,.14);border-radius:10px}
+.caro.big .caro-cap{bottom:36px;font-size:15px;text-align:center;left:0;right:0}
+.caro.big .caro-dots{bottom:10px}
+/* 轻量入场动画，提升整体观感 */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.panel{animation:fadeUp .55s ease both}
+/* ============ 巡湖事迹 ============ */
+.news-list{display:flex;flex-direction:column;gap:8px;max-height:286px;overflow-y:auto;padding-right:2px}
+.news-list::-webkit-scrollbar{width:4px}
+.news-list::-webkit-scrollbar-thumb{background:rgba(0,180,255,.35);border-radius:2px}
+.news-item{display:block;text-decoration:none;background:rgba(0,120,255,.06);border:1px solid rgba(0,180,255,.18);border-radius:6px;padding:8px 10px;transition:.2s}
+.news-item:hover{border-color:var(--cyan);background:rgba(0,150,255,.12);transform:translateX(3px);box-shadow:var(--glow)}
+.news-item .n-t{font-size:13px;color:#e8f4ff;line-height:1.4;font-weight:600}
+.news-item .n-m{display:flex;align-items:center;gap:8px;margin-top:4px;font-size:10px;color:var(--txt-dim)}
+.news-item .n-s{color:var(--cyan)}
+.news-item .n-go{margin-left:auto;color:#7fd8ff;white-space:nowrap}
+.news-search{margin-top:10px;border-top:1px dashed rgba(0,180,255,.2);padding-top:10px}
+.ns-tip{font-size:11px;color:var(--txt-dim);margin-bottom:7px}
+.ns-btn{display:inline-block;margin:0 6px 6px 0;padding:4px 11px;font-size:11px;color:#062a55;font-weight:700;text-decoration:none;border-radius:12px;background:linear-gradient(90deg,#00e5ff,#7fd8ff);transition:.2s}
+.ns-btn:hover{box-shadow:var(--glow);transform:translateY(-1px)}
+.footer{padding:6px 0 14px;text-align:center;font-size:11px;color:#4a6a88;letter-spacing:1px}
+@media (max-width:1400px){.dash-main{grid-template-columns:27% 1fr 27%}}
+@media (max-width:1100px){.dash-main{grid-template-columns:1fr}.bottom{grid-template-columns:1fr}.header .title{font-size:22px;letter-spacing:3px}}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="left">
+    <span class="badge"><span class="dot"></span>数据在线 · 花山片区 3 个监测点</span>
+    <span>标准依据：GB 3838-2002《地表水环境质量标准》Ⅲ类（湖库）</span>
+  </div>
+  <div>
+    <div class="title">严西湖水智眸智慧监测平台</div>
+    <div class="sub">YANXI LAKE AQUA-EYE INTELLIGENT MONITORING PLATFORM · 花山片区</div>
+  </div>
+  <div class="right">
+    <span class="badge">🏫 武汉市光谷第二十七小学 · 市级民间河湖长</span>
+    <span id="clock"></span>
+  </div>
+  <div class="deco-line"></div>
+</header>
+
+<!-- 顶部 hero 已重组为「照片居中 · 三列环绕 · 底部通栏」大屏布局 -->
+
+<div class="dash">
+<div class="dash-main">
+  <!-- ================= 左列 ================= -->
+  <div class="col">
+    <!-- 民间河湖长信息栏（置左列顶部，突出身份标识） -->
+    <div class="panel h-id">
+      <div class="p-head"><div class="p-title">民间河湖长信息栏</div><div class="p-tag">RIVER CHIEF</div></div>
+      <div class="p-body">
+        <div class="chief-card">
+          <div class="chief-logo">🏫</div>
+          <div class="chief-info">
+            <h3>武汉市光谷第二十七小学</h3>
+            <span class="role">严西湖 · 市级民间河湖长</span>
+            <p>守护水域：严西湖花山片区&nbsp;｜&nbsp;所属：武汉市洪山区花山街道<br>聘任单位：武汉市河湖长制办公室</p>
+          </div>
+        </div>
+        <div class="duty">
+          <div><b>📋 巡查监督</b>定期巡湖，监督沿岸排污、垃圾倾倒与非法捕捞行为</div>
+          <div><b>🧪 水质监测</b>组织学生开展水质检测实践，记录并上报监测数据</div>
+          <div><b>📢 宣传教育</b>开展"河湖长制进校园"活动，传播爱水护水理念</div>
+          <div><b>📮 问题上报</b>发现水环境问题及时向街道、区河湖长办反馈</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 巡湖事迹 · 媒体见证 -->
+    <div class="panel">
+      <div class="p-head"><div class="p-title">巡湖事迹 · 媒体见证</div><div class="p-tag">NEWS</div></div>
+      <div class="p-body">
+        <div class="news-list" id="newsList"></div>
+        <div class="news-search" id="newsSearch"></div>
+      </div>
+    </div>
+
+    <!-- 河湖长巡查记录 -->
+    <div class="panel">
+      <div class="p-head"><div class="p-title">河湖长巡查记录</div><div class="p-tag">PATROL LOG</div></div>
+      <div class="p-body">
+        <div class="patrol" id="patrolList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 中列（居中视觉焦点） ================= -->
+  <div class="col">
+    <!-- 师生巡湖风采（居中焦点 · 4:3） -->
+    <div class="panel">
+      <div class="p-head"><div class="p-title">师生巡湖风采 · 严西湖花山片区护水实践</div><div class="p-tag" id="caroTag">PATROL GALLERY</div></div>
+      <div class="p-body" style="padding:12px 14px 14px;display:flex;justify-content:center">
+        <div class="caro big" id="caro">
+          <div class="caro-track" id="caroTrack"></div>
+          <div class="caro-mask"></div>
+          <button class="caro-btn prev" id="caroPrev">‹</button>
+          <button class="caro-btn next" id="caroNext">›</button>
+          <div class="caro-cap">武汉市光谷第二十七小学 · 严西湖花山片区护水实践</div>
+          <div class="caro-dots" id="caroDots"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 水质实时监测总览 -->
+    <div class="panel">
+      <div class="p-head"><div class="p-title">水质实时监测总览</div><div class="p-tag" id="rtTime">REALTIME</div></div>
+      <div class="p-body">
+        <div class="kpi-grid" id="kpiGrid"></div>
+        <div class="sim-note">● 绿=优 ● 黄=接近Ⅲ类限值 ● 红=超Ⅲ类限值&nbsp;&nbsp;点击卡片可切换中央趋势图指标。<br>注：5 项指标均为 2024–2026 年实测月度数据，实时维度由实测基线模拟展示。</div>
+      </div>
+    </div>
+
+    <!-- 历史数据查询与趋势分析 -->
+    <div class="panel">
+      <div class="p-head"><div class="p-title">历史数据查询与趋势分析</div><div class="p-tag">TREND ANALYSIS</div></div>
+      <div class="ctrl-bar">
+        <span class="ctrl-label">时间维度</span>
+        <div class="seg" id="dimSeg">
+          <button data-dim="rt">实时</button>
+          <button data-dim="day">日</button>
+          <button data-dim="week">周</button>
+          <button data-dim="month" class="on">月</button>
+          <button data-dim="quarter">季度</button>
+        </div>
+        <span class="ctrl-label">年份</span>
+        <div class="seg" id="yearSeg">
+          <button data-y="2024">2024</button>
+          <button data-y="2025">2025</button>
+          <button data-y="2026">2026</button>
+          <button data-y="all" class="on">全部</button>
+        </div>
+        <span class="ctrl-label">指标</span>
+        <div class="seg" id="indSeg"></div>
+      </div>
+      <div class="p-body">
+        <div id="trendChart" class="chart"></div>
+        <div class="sim-note">趋势图支持滚轮缩放 / 拖拽范围选择；红色虚线为Ⅲ类标准限值。实时·日·周维度数据为基于实测月度基线的模拟插值。</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= 右列 ================= -->
+  <div class="col">
+    <!-- 雷达图 -->
+    <div class="panel">
+      <div class="p-head"><div class="p-title">当前指标达标雷达</div><div class="p-tag">RADAR · 相对Ⅲ类限值</div></div>
+      <div class="p-body"><div id="radarChart" class="chart"></div></div>
+    </div>
+
+    <!-- 综合水质指数 -->
+    <div class="panel">
+      <div class="p-head"><div class="p-title">综合水质指数 WQI</div><div class="p-tag">INDEX</div></div>
+      <div class="p-body"><div id="wqiGauge" class="chart"></div></div>
+    </div>
+
+    <!-- 水质评价等级分布 -->
+    <div class="panel">
+      <div class="p-head"><div class="p-title">水质评价等级分布</div><div class="p-tag" id="gradeTag">2024—2026 逐月评价</div></div>
+      <div class="p-body"><div id="gradeChart" class="chart"></div></div>
+    </div>
+  </div>
+</div>
+
+  <!-- ================= 底部通栏 ================= -->
+  <div class="bottom">
+    <!-- 指标健康热力图 -->
+    <div class="panel">
+      <div class="p-head"><div class="p-title">指标-月份 健康热力图（标准限值比）</div><div class="p-tag">HEATMAP · 值/Ⅲ类限值，&gt;1 即超标</div></div>
+      <div class="p-body"><div id="heatChart" class="chart"></div></div>
+    </div>
+    <!-- 超标预警 -->
+    <div class="panel">
+      <div class="p-head"><div class="p-title">超标预警提示</div><div class="p-tag" id="warnCount"></div></div>
+      <div class="p-body"><div class="warn-list" id="warnList"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">严西湖水智眸智慧监测平台 · 武汉市光谷第二十七小学（严西湖市级民间河湖长）· 数据来源：2024—2026年水质指标监测表 · 仅供教育实践与公益护水使用</div>
+
+<script>
+/* ===================================================================
+ * 数据层：来自《2024/2025年水质指标数据表格》《2026年水质指标数据》实测月度值
+ * =================================================================== */
+const MONTHS_24 = ['2024-01','2024-02','2024-03','2024-04','2024-05','2024-06','2024-07','2024-08','2024-09','2024-10','2024-11','2024-12'];
+const MONTHS_25 = ['2025-01','2025-02','2025-03','2025-04','2025-05','2025-06','2025-07','2025-08','2025-09','2025-10','2025-11','2025-12'];
+const MONTHS_26 = ['2026-01','2026-02','2026-03','2026-04','2026-05','2026-06'];
+
+const DATA = {
+  2024:{
+    TEMP:[6.5,5.1,12.3,17.5,20.6,22.7,26.8,26.9,22.8,20.7,15.9,3],
+    PH:[7.2,7.2,7.8,7.3,7.4,7.3,7.4,7.6,7.3,7.2,7.1,7.2],
+    DO:[6.8,7.0,8.2,9.0,9.0,9.0,8.1,8.2,8.5,7.3,7.0,6.5],
+    COD:[8.1,8.1,7.2,5.3,3.5,4.6,5.1,5.2,4.7,4.8,6.7,8.6],
+    NH3N:[0.6,0.4,0.7,1.2,1.3,1.4,1.7,1.8,1.5,1.1,0.8,0.9]
+  },
+  2025:{
+    TEMP:[6,8,15,17,23,22,25.2,26.6,25.5,22.7,16.9,10.8],
+    PH:[7.2,7.6,7.4,7.5,7.5,7.4,7.7,7.8,7.6,7.5,7.4,7.4],
+    DO:[8.1,8.1,8.2,8.1,8.4,8.1,8.2,8.0,8.0,7.5,7.0,6.0],
+    COD:[5.87,6.0,5.9,5.9,5.9,5.9,4.5,5.0,5.0,5.5,6.0,7.0],
+    NH3N:[0.5,0.6,0.5,0.7,0.9,1.1,1.3,1.4,1.5,1.3,1.0,0.8]
+  },
+  2026:{
+    TEMP:[4.8,7.2,11.8,17.5,21.8,22],
+    PH:[7.4,7.5,7.5,7.6,7.4,7.7],
+    DO:[8.3,8.2,8.1,8.2,8.1,8.2],
+    COD:[6.1,5.8,5.9,5.8,6.0,6.0],
+    NH3N:[0.6,0.5,0.8,0.9,0.8,0.7]
+  }
+};
+
+/* 指标元数据：Ⅲ类标准限值（湖库），dir: high=越高越好 low=越低越好 range=区间 */
+const IND = {
+  TEMP:{name:'水温', unit:'℃', dir:'none', limit:null, color:'#ff9f43', sim:false},
+  PH:{name:'pH值', unit:'', dir:'range', lo:6, hi:9, limit:null, color:'#a78bfa', sim:false},
+  DO:{name:'溶解氧', unit:'mg/L', dir:'high', limit:5, color:'#00e5ff', sim:false},
+  COD:{name:'化学需氧量', unit:'mg/L', dir:'low', limit:20, color:'#2e7bff', sim:false},
+  NH3N:{name:'氨氮', unit:'mg/L', dir:'low', limit:1.0, color:'#ffd166', sim:false}
+};
+const IND_KEYS = Object.keys(IND);
+
+/* 合并序列 */
+function seriesOf(key, year){
+  if(year==='2024') return {x:MONTHS_24, v:DATA[2024][key]};
+  if(year==='2025') return {x:MONTHS_25, v:DATA[2025][key]};
+  if(year==='2026') return {x:MONTHS_26, v:DATA[2026][key]};
+  return {x:MONTHS_24.concat(MONTHS_25,MONTHS_26), v:DATA[2024][key].concat(DATA[2025][key],DATA[2026][key])};
+}
+
+/* ============ 单因子评价（Ⅰ~Ⅴ/劣Ⅴ：按 pH/DO/COD/氨氮 实测指标） ============ */
+const GRADE_LIMITS = { // GB3838 各类限值（湖库）
+  DO:[7.5,6,5,3,2],        // ≥
+  COD:[15,15,20,30,40],    // ≤
+  NH3N:[0.15,0.5,1.0,1.5,2.0]
+};
+function gradeOfMonth(year, idx){
+  let worst=3;                       // pH 达标即至少Ⅲ类
+  const ph=DATA[year].PH[idx];
+  if(ph<6||ph>9) worst=5;           // pH 超出 6~9 明显恶化
+  for(const k of ['DO','COD','NH3N']){
+    const v=DATA[year][k][idx]; if(v==null) continue;
+    const lim=GRADE_LIMITS[k]; let g=6;
+    for(let i=0;i<5;i++){
+      const ok = k==='DO' ? v>=lim[i] : v<=lim[i];
+      if(ok){g=i+1;break;}
+    }
+    if(g>worst) worst=g;
+  }
+  return worst; // 1~6（6=劣Ⅴ）
+}
+const GRADE_NAMES=['Ⅰ类','Ⅱ类','Ⅲ类','Ⅳ类','Ⅴ类','劣Ⅴ类'];
+const GRADE_COLORS=['#00e5ff','#00ffa2','#7fd8ff','#ffd166','#ff9f43','#ff5c7a'];
+
+/* ============ 通用 ECharts 主题参数 ============ */
+const AXIS={axisLine:{lineStyle:{color:'rgba(0,180,255,.35)'}},axisLabel:{color:'#7fa8c9',fontSize:11},
+  splitLine:{lineStyle:{color:'rgba(0,180,255,.08)'}}};
+const TIP={backgroundColor:'rgba(6,22,50,.92)',borderColor:'rgba(0,180,255,.4)',textStyle:{color:'#d7ecff',fontSize:12}};
+const charts={};
+function mk(id){const c=echarts.init(document.getElementById(id));charts[id]=c;return c;}
+
+/* ===================================================================
+ * 1. KPI 实时总览
+ * =================================================================== */
+const latestIdx = DATA[2026].TEMP.length-1; // 2026-06
+function stateOf(k,v){
+  const m=IND[k];
+  if(m.dir==='high') return v>=m.limit*1.3?'good':(v>=m.limit?'warn':'bad');
+  if(m.dir==='low'&&m.limit) return v<=m.limit*0.7?'good':(v<=m.limit?'warn':'bad');
+  if(m.dir==='range') return (v>=m.lo+0.5&&v<=m.hi-0.5)?'good':((v>=m.lo&&v<=m.hi)?'warn':'bad');
+  return 'good';
+}
+let currentInd='DO';
+const kpiGrid=document.getElementById('kpiGrid');
+function jitter(base,pct){return base*(1+(Math.random()*2-1)*pct);}
+function fmt(k,v){return (k==='PH'||k==='DO'||k==='NH3N')?v.toFixed(2):v.toFixed(1);}
+function renderKPI(){
+  kpiGrid.innerHTML='';
+  IND_KEYS.forEach(k=>{
+    const base=DATA[2026][k][latestIdx];
+    const v=jitter(base, k==='TEMP'?0.01:0.02);
+    const st=stateOf(k,v);
+    const div=document.createElement('div');
+    div.className='kpi'+(k===currentInd?' active':'');
+    div.innerHTML=`<span class="k-state st-${st}"></span>
+      <div class="k-name">${IND[k].name}${IND[k].sim?'*':''}</div>
+      <div class="k-val">${fmt(k,v)}</div>
+      <div class="k-unit">${IND[k].unit||'—'}</div>`;
+    div.onclick=()=>{currentInd=k;renderKPI();renderIndSeg();renderTrend();renderRadarHighlight();};
+    kpiGrid.appendChild(div);
+  });
+  document.getElementById('rtTime').textContent='更新于 '+new Date().toLocaleTimeString('zh-CN');
+}
+renderKPI();
+setInterval(renderKPI,5000);
+
+/* ===================================================================
+ * 2. 趋势分析（时间维度 × 年份 × 指标）
+ * =================================================================== */
+let dim='month', yearSel='all';
+const trend=mk('trendChart');
+
+/* 由月度基线生成模拟细粒度序列 */
+function interpSeries(key, n, labelFn){
+  const {v}=seriesOf(key,'all');
+  const out=[],lab=[];
+  for(let i=0;i<n;i++){
+    const t=i/(n-1)*(v.length-1);
+    const i0=Math.floor(t), i1=Math.min(i0+1,v.length-1);
+    const base=v[i0]+(v[i1]-v[i0])*(t-i0);
+    out.push(+ (base*(1+(Math.sin(i*1.7)+Math.cos(i*0.9))*0.015)).toFixed(3));
+    lab.push(labelFn(i));
+  }
+  return {x:lab,v:out};
+}
+function getTrendData(key){
+  if(dim==='month') return seriesOf(key,yearSel);
+  if(dim==='quarter'){
+    const s=seriesOf(key,yearSel); const qx=[],qv=[];
+    for(let i=0;i<s.v.length;i+=3){
+      const chunk=s.v.slice(i,i+3);
+      qv.push(+(chunk.reduce((a,b)=>a+b,0)/chunk.length).toFixed(3));
+      const ym=s.x[i].split('-'); qx.push(ym[0]+' Q'+(Math.floor((+ym[1]-1)/3)+1));
+    }
+    return {x:qx,v:qv};
+  }
+  if(dim==='week') return interpSeries(key,78,i=>'第'+(i+1)+'周');
+  if(dim==='day') return interpSeries(key,120,i=>{const d=new Date(2026,1,1);d.setDate(d.getDate()+i);return (d.getMonth()+1)+'/'+d.getDate();});
+  return interpSeries(key,60,i=>{const h=Math.floor(i/2.5);return ('0'+(h%24)).slice(-2)+':'+(i%2?'30':'00');});
+}
+function renderTrend(){
+  const m=IND[currentInd];
+  const d=getTrendData(currentInd);
+  const marks=[];
+  if(m.limit!=null) marks.push({yAxis:m.limit,name:'Ⅲ类限值',lineStyle:{color:'#ff5c7a',type:'dashed',width:1.5},
+    label:{formatter:'Ⅲ类限值 '+m.limit,color:'#ff5c7a',fontSize:11}});
+  if(m.dir==='range'){marks.push({yAxis:m.lo,lineStyle:{color:'#ff5c7a',type:'dashed'},label:{formatter:'下限 6',color:'#ff5c7a'}},
+    {yAxis:m.hi,lineStyle:{color:'#ff5c7a',type:'dashed'},label:{formatter:'上限 9',color:'#ff5c7a'}});}
+  trend.setOption({
+    tooltip:{...TIP,trigger:'axis',axisPointer:{type:'cross',label:{backgroundColor:'#0a3a6b'}}},
+    grid:{left:52,right:26,top:44,bottom:56},
+    title:{text:m.name+(m.sim?'（模拟补充）':'')+' 趋势 · '+({rt:'实时',day:'日',week:'周',month:'月',quarter:'季度'})[dim],
+      left:8,top:4,textStyle:{color:'#9fd4ff',fontSize:13,fontWeight:600}},
+    xAxis:{type:'category',data:d.x,boundaryGap:dim!=='month'&&dim!=='quarter'?false:true,...AXIS},
+    yAxis:{type:'value',name:m.unit,scale:true,...AXIS,nameTextStyle:{color:'#7fa8c9'}},
+    dataZoom:[{type:'inside'},{type:'slider',height:16,bottom:8,borderColor:'rgba(0,180,255,.3)',
+      backgroundColor:'rgba(0,60,120,.2)',fillerColor:'rgba(0,180,255,.15)',textStyle:{color:'#7fa8c9'}}],
+    series:[{
+      name:m.name,type:'line',data:d.v,smooth:true,symbol:'circle',symbolSize:dim==='month'||dim==='quarter'?7:0,
+      lineStyle:{width:2.5,color:m.color,shadowColor:m.color,shadowBlur:12},
+      itemStyle:{color:m.color,borderColor:'#fff',borderWidth:1},
+      areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
+        {offset:0,color:m.color+'55'},{offset:1,color:m.color+'05'}])},
+      markLine:{silent:true,symbol:'none',data:marks},
+      markPoint:dim==='month'?{data:[{type:'max',name:'最大'},{type:'min',name:'最小'}],
+        symbolSize:46,label:{fontSize:10,color:'#04122d'},itemStyle:{color:m.color}}:undefined
+    }]
+  },true);
+}
+/* 指标切换按钮 */
+const indSeg=document.getElementById('indSeg');
+function renderIndSeg(){
+  indSeg.innerHTML='';
+  IND_KEYS.forEach(k=>{
+    const b=document.createElement('button');
+    b.textContent=IND[k].name;b.className=k===currentInd?'on':'';
+    b.onclick=()=>{currentInd=k;renderIndSeg();renderKPI();renderTrend();renderRadarHighlight();};
+    indSeg.appendChild(b);
+  });
+}
+renderIndSeg();
+document.getElementById('dimSeg').addEventListener('click',e=>{
+  if(e.target.dataset.dim){dim=e.target.dataset.dim;
+    [...e.currentTarget.children].forEach(x=>x.classList.toggle('on',x===e.target));renderTrend();}
+});
+document.getElementById('yearSeg').addEventListener('click',e=>{
+  if(e.target.dataset.y){yearSel=e.target.dataset.y;
+    [...e.currentTarget.children].forEach(x=>x.classList.toggle('on',x===e.target));renderTrend();renderHeat();renderGrade();}
+});
+renderTrend();
+
+/* ===================================================================
+ * 3. 热力图：值 / Ⅲ类限值
+ * =================================================================== */
+const heat=mk('heatChart');
+function renderHeat(){
+  const keys=['DO','COD','NH3N'];
+  const {x}=seriesOf('DO',yearSel);
+  const data=[];
+  keys.forEach((k,ki)=>{
+    const s=seriesOf(k,yearSel);
+    s.v.forEach((v,mi)=>{
+      let r;
+      const m=IND[k];
+      if(m.dir==='high') r=m.limit/v;           // DO 反向
+      else if(m.limit) r=v/m.limit;
+      else r=v/m.ref;
+      data.push([mi,ki,+r.toFixed(2)]);
+    });
+  });
+  heat.setOption({
+    tooltip:{...TIP,formatter:p=>{
+      const k=keys[p.value[1]];
+      return x[p.value[0]]+'<br>'+IND[k].name+'：限值比 <b>'+p.value[2]+'</b>'+(p.value[2]>1?' <span style="color:#ff5c7a">⚠超标</span>':' ✅');
+    }},
+    grid:{left:86,right:70,top:14,bottom:40},
+    xAxis:{type:'category',data:x.map(s=>s.slice(2)),...AXIS,splitArea:{show:true,areaStyle:{color:['rgba(0,60,120,.06)','rgba(0,60,120,.03)']}}},
+    yAxis:{type:'category',data:keys.map(k=>IND[k].name+(IND[k].sim?'*':'')),...AXIS},
+    visualMap:{min:0.2,max:1.3,calculable:true,orient:'vertical',right:2,top:'center',
+      textStyle:{color:'#7fa8c9',fontSize:10},itemHeight:110,
+      inRange:{color:['#00e5ff','#00ffa2','#ffd166','#ff9f43','#ff5c7a']}},
+    series:[{type:'heatmap',data,label:{show:true,fontSize:9,color:'#04122d',formatter:p=>p.value[2]},
+      itemStyle:{borderColor:'#050b1a',borderWidth:2,borderRadius:3},
+      emphasis:{itemStyle:{shadowBlur:12,shadowColor:'rgba(0,229,255,.6)'}}}]
+  },true);
+}
+renderHeat();
+
+/* ===================================================================
+ * 4. 超标预警
+ * =================================================================== */
+(function renderWarn(){
+  const list=document.getElementById('warnList');
+  const items=[];
+  ['2024','2025','2026'].forEach(y=>{
+    const xs = y==='2024'?MONTHS_24:(y==='2025'?MONTHS_25:MONTHS_26);
+    ['NH3N','DO','COD'].forEach(k=>{
+      const m=IND[k];
+      DATA[y][k].forEach((v,i)=>{
+        let over=false, near=false;
+        if(m.dir==='high'){over=v<m.limit; near=!over&&v<m.limit*1.25;}
+        else{over=v>m.limit; near=!over&&v>m.limit*0.9;}
+        if(over) items.push({lv:'bad',t:xs[i],k,v,txt:`${m.name}${m.sim?'（模拟）':''} ${fmt(k,v)} ${m.unit}，超Ⅲ类限值（${m.limit}）`,ratio:(m.dir==='high'?m.limit/v:v/m.limit)});
+        else if(near) items.push({lv:'warn',t:xs[i],k,v,txt:`${m.name}${m.sim?'（模拟）':''} ${fmt(k,v)} ${m.unit}，接近Ⅲ类限值（${m.limit}）`,ratio:(m.dir==='high'?m.limit/v:v/m.limit)});
+      });
+    });
+  });
+  items.sort((a,b)=>b.t.localeCompare(a.t)||b.ratio-a.ratio);
+  document.getElementById('warnCount').textContent=`超标 ${items.filter(i=>i.lv==='bad').length} 条 · 临界 ${items.filter(i=>i.lv==='warn').length} 条`;
+  if(!items.length){list.innerHTML='<div class="warn-empty">✅ 全部指标达标，水质状况良好</div>';return;}
+  list.innerHTML=items.map(it=>`
+    <div class="warn-item ${it.lv==='warn'?'lv-warn':''}">
+      <div class="w-ico">${it.lv==='bad'?'⚠':'⚡'}</div>
+      <div class="w-txt">${it.txt}<small>${it.t} · 严西湖花山片区 · 建议：${it.lv==='bad'?'加强巡查频次，排查周边汇入源，上报河湖长办':'持续关注变化趋势'}</small></div>
+      <div class="w-tag ${it.lv==='bad'?'red':'yel'}">${it.lv==='bad'?'超标':'临界'}</div>
+    </div>`).join('');
+})();
+
+/* ===================================================================
+ * 5. 评价等级分布（饼图）
+ * =================================================================== */
+const grade=mk('gradeChart');
+function renderGrade(){
+  const cnt=[0,0,0,0,0,0];
+  const years = yearSel==='all'?['2024','2025','2026']:[yearSel];
+  years.forEach(y=>{DATA[y].TEMP.forEach((_,i)=>cnt[gradeOfMonth(y,i)-1]++);});
+  const total=cnt.reduce((a,b)=>a+b,0);
+  document.getElementById('gradeTag').textContent=(yearSel==='all'?'2024—2026':yearSel)+' 逐月单因子评价 · '+total+' 个月';
+  grade.setOption({
+    tooltip:{...TIP,formatter:p=>p.name+'：'+p.value+' 个月（'+p.percent+'%）'},
+    legend:{orient:'vertical',right:6,top:'center',textStyle:{color:'#9fc4e0',fontSize:11},itemWidth:12,itemHeight:8},
+    series:[{type:'pie',radius:['42%','68%'],center:['38%','50%'],
+      data:GRADE_NAMES.map((n,i)=>({name:n,value:cnt[i],itemStyle:{color:GRADE_COLORS[i]}})).filter(d=>d.value>0),
+      label:{color:'#d7ecff',fontSize:11,formatter:'{b}\n{d}%'},
+      labelLine:{lineStyle:{color:'rgba(0,180,255,.4)'}},
+      itemStyle:{borderColor:'#050b1a',borderWidth:2},
+      emphasis:{scale:true,scaleSize:6}}]
+  },true);
+}
+renderGrade();
+
+/* ===================================================================
+ * 6. WQI 仪表盘（简化 CCME 式：达标率加权）
+ * =================================================================== */
+(function(){
+  const g=mk('wqiGauge');
+  let pass=0,tot=0;
+  ['2024','2025','2026'].forEach(y=>['DO','COD','NH3N'].forEach(k=>{
+    DATA[y][k].forEach(v=>{tot++;const m=IND[k];if(m.dir==='high'?v>=m.limit:v<=m.limit)pass++;});
+  }));
+  const wqi=Math.round(pass/tot*100);
+  g.setOption({
+    series:[{type:'gauge',startAngle:210,endAngle:-30,min:0,max:100,radius:'95%',center:['50%','58%'],
+      progress:{show:true,width:12,roundCap:true,itemStyle:{color:new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#2e7bff'},{offset:1,color:'#00e5ff'}])}},
+      axisLine:{lineStyle:{width:12,color:[[1,'rgba(0,120,255,.12)']]}},
+      axisTick:{distance:-20,lineStyle:{color:'rgba(0,180,255,.4)'}},
+      splitLine:{distance:-24,length:8,lineStyle:{color:'rgba(0,180,255,.5)'}},
+      axisLabel:{distance:-38,color:'#5c7f9e',fontSize:9},
+      pointer:{show:false},anchor:{show:false},
+      detail:{valueAnimation:true,offsetCenter:[0,'-6%'],fontSize:34,fontWeight:800,color:'#00e5ff',
+        formatter:v=>v,fontFamily:'Consolas'},
+      title:{offsetCenter:[0,'34%'],color:'#9fc4e0',fontSize:12},
+      data:[{value:wqi,name:'关键指标达标率 '+wqi+'%（'+pass+'/'+tot+' 项次）'}]}]
+  });
+})();
+
+/* ===================================================================
+ * 7. 雷达图：最新月份 vs Ⅲ类限值
+ * =================================================================== */
+const radar=mk('radarChart');
+function renderRadarHighlight(){
+  const keys=['DO','COD','NH3N','PH'];
+  const cur=keys.map(k=>{
+    const v=DATA[2026][k][latestIdx],m=IND[k];
+    if(k==='PH') return +(100-Math.abs(v-7.5)/1.5*40).toFixed(1);
+    if(m.dir==='high') return +Math.min(v/m.limit*60,100).toFixed(1);
+    return +Math.max(0,Math.min((1-v/m.limit)*100+40,100)).toFixed(1);
+  });
+  const y25=keys.map(k=>{
+    const v=DATA[2025][k][5],m=IND[k]; // 2025-06 同期
+    if(k==='PH') return +(100-Math.abs(v-7.5)/1.5*40).toFixed(1);
+    if(m.dir==='high') return +Math.min(v/m.limit*60,100).toFixed(1);
+    return +Math.max(0,Math.min((1-v/m.limit)*100+40,100)).toFixed(1);
+  });
+  radar.setOption({
+    tooltip:TIP,
+    legend:{bottom:0,textStyle:{color:'#9fc4e0',fontSize:11},itemWidth:14,itemHeight:8,
+      data:['2026-06（最新）','2025-06（同期）']},
+    radar:{indicator:keys.map(k=>({name:IND[k].name+(IND[k].sim?'*':''),max:100})),radius:'62%',center:['50%','46%'],
+      axisName:{color:'#9fd4ff',fontSize:11},
+      splitArea:{areaStyle:{color:['rgba(0,90,190,.06)','rgba(0,90,190,.10)']}},
+      splitLine:{lineStyle:{color:'rgba(0,180,255,.18)'}},
+      axisLine:{lineStyle:{color:'rgba(0,180,255,.25)'}}},
+    series:[{type:'radar',
+      data:[
+        {name:'2026-06（最新）',value:cur,lineStyle:{color:'#00e5ff',width:2.5},itemStyle:{color:'#00e5ff'},
+          areaStyle:{color:'rgba(0,229,255,.22)'},symbolSize:4},
+        {name:'2025-06（同期）',value:y25,lineStyle:{color:'#ffd166',width:1.8,type:'dashed'},itemStyle:{color:'#ffd166'},
+          areaStyle:{color:'rgba(255,209,102,.08)'},symbolSize:3}
+      ]}]
+  });
+}
+renderRadarHighlight();
+
+/* ===================================================================
+ * 8. 片区对比模块已移除：对比片区数据非实测，遵循“数据不虚构”原则
+ * =================================================================== */
+
+/* ===================================================================
+ * 9. 巡查记录
+ * =================================================================== */
+const PATROLS=[
+  {d:'2026-06-18',t:'期末护水巡湖 · 花山碧水东岸',s:'ok',desc:'六年级"小河长"中队巡查东岸2.4km，水面清洁，未见排污口异常，完成5项指标现场快检。'},
+  {d:'2026-05-22',t:'生物多样性观测 + 采样',s:'ok',desc:'联合区河湖长办开展夏候鸟与水生植物观测，采集水样3组送检，DO 8.1mg/L 状态良好。'},
+  {d:'2026-04-15',t:'雨后专项巡查',s:'follow',desc:'强降雨后巡查入湖沟渠，发现北侧沟渠携带泥沙入湖、水体偏浑、悬浮物偏高，已上报花山街道河湖长办跟踪。'},
+  {d:'2026-03-12',t:'"世界水日"主题巡湖',s:'ok',desc:'开展"节水中国 你我同行"主题活动，全校36名学生代表参与岸线清捡，清理垃圾11kg。'},
+  {d:'2026-01-09',t:'冬季常规巡查',s:'ok',desc:'冬季水位下降，岸线状态正常；完成冬季首轮五项指标检测，全部优于Ⅲ类标准。'},
+  {d:'2025-11-20',t:'秋季水质联合检测',s:'follow',desc:'检测发现溶解氧降至7.0mg/L呈下降趋势，建议关注冬季低温期复氧情况，持续加密监测。'},
+  {d:'2025-09-10',t:'开学第一课 · 巡湖实践',s:'follow',desc:'夏末氨氮1.5mg/L超Ⅲ类限值，已将检测报告提交市河湖长办，建议排查面源汇入。'},
+  {d:'2025-06-05',t:'"世界环境日"巡湖',s:'ok',desc:'组织环保主题巡湖与水质科普展，向社区居民发放护水倡议书200余份。'}
+];
+document.getElementById('patrolList').innerHTML=PATROLS.map(p=>`
+  <div class="pt-item">
+    <div class="pt-date">${p.d}</div>
+    <div class="pt-t">${p.t}</div>
+    <div class="pt-d">${p.desc}</div>
+    <span class="pt-s ${p.s==='ok'?'pt-ok':'pt-follow'}">${p.s==='ok'?'✔ 巡查正常':'◉ 跟踪处理'}</span>
+  </div>`).join('');
+
+/* ===================================================================
+ * 10. 师生巡湖照片轮播（照片已统一裁剪为 1280×720，匿名命名）
+ * =================================================================== */
+(function(){
+  const TOTAL=52;
+  const track=document.getElementById('caroTrack');
+  const dots=document.getElementById('caroDots');
+  const tag=document.getElementById('caroTag');
+  const box=document.getElementById('caro');
+  let cur=0;
+  // 构建图片
+  for(let i=1;i<=TOTAL;i++){
+    const img=document.createElement('img');
+    img.src='assets/photos/patrol_'+String(i).padStart(2,'0')+'.jpg';
+    img.loading='lazy';
+    img.alt='';   // 不显示照片名字
+    track.appendChild(img);
+  }
+  // 构建圆点
+  for(let i=0;i<TOTAL;i++){
+    const d=document.createElement('i');
+    d.onclick=()=>{go(i);reset();};
+    dots.appendChild(d);
+  }
+  const dotEls=[...dots.children];
+  function render(){
+    track.style.transform='translateX(-'+(cur*100)+'%)';
+    dotEls.forEach((d,i)=>d.classList.toggle('on',i===cur));
+    tag.textContent=String(cur+1).padStart(2,'0')+' / '+TOTAL;
+  }
+  function go(i){cur=(i+TOTAL)%TOTAL;render();}
+  let timer=null;
+  function play(){timer=setInterval(()=>go(cur+1),3500);}
+  function reset(){clearInterval(timer);play();}
+  document.getElementById('caroPrev').onclick=()=>{go(cur-1);reset();};
+  document.getElementById('caroNext').onclick=()=>{go(cur+1);reset();};
+  box.addEventListener('mouseenter',()=>clearInterval(timer));
+  box.addEventListener('mouseleave',play);
+  render();play();
+})();
+
+/* ===================================================================
+ * 11. 巡湖事迹 · 媒体见证（真实公开报道 + 按关键词全网检索）
+ * =================================================================== */
+const NEWS=[
+  {t:'坚持3年观察身边的湖，获评"武汉市十佳民间河湖长"',s:'长江日报 / 武汉市水务局',d:'2023-04',u:'https://swj.wuhan.gov.cn/tzdt/hhzz/202304/t20230406_2181987.html'},
+  {t:'"十佳河湖长"周末巡湖忙',s:'长江日报·大武汉客户端 / 今日头条',d:'2023-04',u:'https://www.toutiao.com/article/7217758054631080483/'},
+  {t:'武汉小学生坚持3年观察身边的湖，获评"武汉市十佳民间河湖长"',s:'极目新闻 / 网易',d:'2023-04',u:'https://www.163.com/dy/article/I1FUE6G3053469LG.html'},
+  {t:'志愿做好河湖管护，奉献彰显"雷锋精神"',s:'荆楚网',d:'2023-03',u:'https://news.cnhubei.com/xw/2023zt/zfsn/202303/t4603074.shtml'},
+  {t:'湖北青少年志愿服务优秀案例展示（我校入选）',s:'武汉文明网',d:'2023-04',u:'http://hbwh.wenming.cn/wmqbz/202304/t20230411_8042529.html'},
+  {t:'珍爱"身边的湖"，一群老师带学生走向世界',s:'极目新闻 / 今日头条',d:'2025-04 · 国际生态学校绿旗荣誉',u:'https://www.toutiao.com/article/7489086240910885411'},
+  {t:'小小河湖长 巡湖护水学防溺 少年双肩显担当',s:'武汉水务 / 搜狐',d:'提及"严西湖水智眸平台"',u:'https://www.sohu.com/a/1035359103_121106908'},
+  {t:'小小河湖长 童心护碧水，他们这样过儿童节',s:'搜狐',d:'担任严西湖民间河湖长六年来',u:'https://www.sohu.com/a/1030872787_121106908'}
+];
+document.getElementById('newsList').innerHTML=NEWS.map(n=>`
+  <a class="news-item" href="${n.u}" target="_blank" rel="noopener">
+    <div class="n-t">${n.t}</div>
+    <div class="n-m"><span class="n-s">📰 ${n.s}</span><span class="n-d">${n.d}</span><span class="n-go">查看原文 ›</span></div>
+  </a>`).join('');
+const KWS=['武汉市光谷第二十七小学 巡湖 湿地保护 小小河湖长 民间河湖长','武汉市光谷第二十七小学 严西湖 水智眸 平台','光谷二十七小 小小河湖长 巡湖 湿地保护','武汉市光谷第二十七小学 十佳民间河湖长 严西湖','光谷二十七小 国际生态学校 绿旗 严西湖'];
+document.getElementById('newsSearch').innerHTML='<div class="ns-tip">🔗 点击在搜索引擎中检索我校护湖事迹（外部链接，将打开新标签页）：</div>'+KWS.map(k=>
+  `<a class="ns-btn" href="https://www.baidu.com/s?wd=${encodeURIComponent(k)}" target="_blank" rel="noopener">${k.replace(/ /g,' · ')}</a>`).join('');
+
+/* ============ 时钟 & 自适应 ============ */
+setInterval(()=>{
+  const n=new Date();
+  document.getElementById('clock').textContent=n.toLocaleDateString('zh-CN',{year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'})+' '+n.toLocaleTimeString('zh-CN');
+},1000);
+window.addEventListener('resize',()=>Object.values(charts).forEach(c=>c.resize()));
+</script>
+</body>
+</html>
