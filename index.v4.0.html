@@ -707,24 +707,46 @@ document.getElementById('patrolList').innerHTML=PATROLS.map(p=>`
   </div>`).join('');
 
 /* ===================================================================
- * 10. 师生巡湖照片轮播（照片已统一裁剪为 1280×720，匿名命名）
+ * 10. 师生巡湖照片轮播（按 轮播图/ 原文件名顺序加载）
  * =================================================================== */
+const CAROUSEL_FILES=[
+  "“科普区”展示获领导大力表扬.png",
+  "15.jpg","16.jpg",
+  "202202生态研学社团巡湖1.png",
+  "20230401红领巾志愿：王子涵、霍前隆1.jpg",
+  "20250417美化严西湖.jpg",
+  "20250529湖北省科技馆生态实践活动1.jpg",
+  "8.jpg","出发.jpg","出发3.jpg",
+  "合影1.jpg","合影2.jpg","合影3.jpg","合影4.jpg","合影5.jpg","合影7.jpg",
+  "合照2.jpg","捡起湖边垃圾.jpg","讲解安全事项.jpg","教师授课.jpg",
+  "取水回实验室.jpg","取严西湖水样2.jpg",
+  "荣誉合影2.png","荣誉合影4.JPG","森林.jpg","生态区_5.jpg",
+  "生态宣讲2.jpg","生态宣讲4.jpg","水质检测.jpg",
+  "水质检测实验1.jpg","水质检测实验4.jpg","水质检测实验5.jpg",
+  "外场展示.jpg","武汉电视台：学生采访1.jpg","现场颁奖.jpg",
+  "向长江日报记者介绍我校巡湖事迹.JPG","宣讲5.jpg",
+  "悬挂环保标语.jpg","悬挂环保标语(1).jpg",
+  "学生1.jpg","学生3.jpg","学生完成河湖长知识拼图.jpg","展台2.jpg",
+  "IMG_20241024_155745.jpg","IMG_20241210_095723.jpg",
+  "IMG_20250415_165444.jpg","IMG_20250415_170603.jpg","IMG_20250415_171053.jpg",
+  "IMG_20250420_155757.jpg","IMG_20250420_155907.jpg",
+  "IMG_20250430_154436.jpg","IMG_20250430_154648.jpg","IMG_20250430_162308.jpg"
+];
 (function(){
-  const TOTAL=52;
+  const files=CAROUSEL_FILES;
+  const TOTAL=files.length;
   const track=document.getElementById('caroTrack');
   const dots=document.getElementById('caroDots');
   const tag=document.getElementById('caroTag');
   const box=document.getElementById('caro');
   let cur=0;
-  // 构建图片
-  for(let i=1;i<=TOTAL;i++){
+  files.forEach(name=>{
     const img=document.createElement('img');
-    img.src='assets/photos/patrol_'+String(i).padStart(2,'0')+'.jpg';
+    img.src='轮播图/'+encodeURIComponent(name);
     img.loading='lazy';
-    img.alt='';   // 不显示照片名字
+    img.alt='';
     track.appendChild(img);
-  }
-  // 构建圆点
+  });
   for(let i=0;i<TOTAL;i++){
     const d=document.createElement('i');
     d.onclick=()=>{go(i);reset();};
