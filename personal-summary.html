@@ -1,0 +1,773 @@
+><!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personal Summary</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bg-soft: #fafafa;
+      --text: #111111;
+      --text-secondary: #6b6b6b;
+      --text-tertiary: #9a9a9a;
+      --border: #ededed;
+      --border-strong: #e0e0e0;
+      --accent: #d97757;
+      --accent-soft: #fff5f2;
+      --accent-purple: #7c6fae;
+      --radius: 14px;
+      --radius-sm: 10px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04);
+      --shadow-hover: 0 4px 12px rgba(0,0,0,0.06), 0 16px 40px rgba(0,0,0,0.06);
+      --max-width: 760px;
+      --font: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .site-header-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .logo {
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: -0.3px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent) 0%, #e8a88e 100%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .file-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .file-btn:hover {
+      border-color: var(--text-tertiary);
+      color: var(--text);
+      box-shadow: var(--shadow);
+    }
+
+    .file-btn input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .status {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      display: none;
+    }
+
+    .status.visible {
+      display: inline;
+    }
+
+    /* Main */
+    main {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 80px 24px 120px;
+    }
+
+    /* Typography */
+    .md-content h1 {
+      font-size: 40px;
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -1.2px;
+      margin-bottom: 24px;
+      color: var(--text);
+    }
+
+    .md-content > blockquote {
+      margin: 32px 0 48px;
+      padding: 24px 28px;
+      background: var(--bg-soft);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      color: var(--text-secondary);
+      font-size: 18px;
+      font-weight: 400;
+      line-height: 1.6;
+    }
+
+    .md-content > blockquote p {
+      margin: 0;
+    }
+
+    .md-content h2 {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: -0.6px;
+      margin-top: 72px;
+      margin-bottom: 28px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .md-content h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-top: 36px;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+
+    .md-content p {
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+
+    .md-content ul,
+    .md-content ol {
+      margin: 16px 0 24px 4px;
+      padding-left: 22px;
+    }
+
+    .md-content li {
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    .md-content li::marker {
+      color: var(--text-tertiary);
+    }
+
+    .md-content strong {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .md-content a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.2s;
+    }
+
+    .md-content a:hover {
+      border-bottom-color: var(--accent);
+    }
+
+    .md-content hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 56px 0;
+    }
+
+    /* Tables */
+    .md-content table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 28px 0 36px;
+      font-size: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .md-content thead {
+      background: var(--bg-soft);
+    }
+
+    .md-content th,
+    .md-content td {
+      padding: 14px 18px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .md-content th {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .md-content tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .md-content tbody tr:hover {
+      background: var(--bg-soft);
+    }
+
+    /* Code */
+    .md-content code {
+      font-family: 'SF Mono', Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9em;
+      background: var(--bg-soft);
+      padding: 2px 6px;
+      border-radius: 5px;
+      color: var(--accent-purple);
+    }
+
+    /* Cards for list items with nested structure */
+    .md-content ol > li > strong:first-child,
+    .md-content ul > li > strong:first-child {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* Footer */
+    .site-footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 24px;
+      text-align: center;
+    }
+
+    .site-footer p {
+      font-size: 13px;
+      color: var(--text-tertiary);
+    }
+
+    /* Decorative hero gradient */
+    .hero-decoration {
+      position: fixed;
+      top: -200px;
+      right: -200px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(217,119,87,0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .hero-decoration-2 {
+      position: fixed;
+      bottom: -300px;
+      left: -200px;
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(124,111,174,0.05) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .site-header-inner {
+        padding: 14px 18px;
+      }
+
+      .logo-text {
+        display: none;
+      }
+
+      .file-btn span {
+        display: none;
+      }
+
+      .file-btn {
+        padding: 8px;
+      }
+
+      main {
+        padding: 48px 18px 80px;
+      }
+
+      .md-content h1 {
+        font-size: 30px;
+        letter-spacing: -0.8px;
+      }
+
+      .md-content > blockquote {
+        font-size: 16px;
+        padding: 18px 20px;
+        margin: 24px 0 36px;
+      }
+
+      .md-content h2 {
+        font-size: 20px;
+        margin-top: 52px;
+      }
+
+      .md-content h3 {
+        font-size: 16px;
+      }
+
+      .md-content table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .md-content th,
+      .md-content td {
+        padding: 12px 14px;
+      }
+    }
+
+    /* Print */
+    @media print {
+      .site-header,
+      .site-footer {
+        display: none;
+      }
+
+      main {
+        padding: 0;
+        max-width: 100%;
+      }
+
+      .hero-decoration,
+      .hero-decoration-2 {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="hero-decoration"></div>
+  <div class="hero-decoration-2"></div>
+
+  <header class="site-header">
+    <div class="site-header-inner">
+      <div class="logo">
+        <span class="logo-mark">PS</span>
+        <span class="logo-text">Personal Summary</span>
+      </div>
+      <div class="header-actions">
+        <span class="status" id="status"></span>
+        <label class="file-btn">
+          <input type="file" id="fileInput" accept=".md,.markdown,text/markdown">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          <span>加载 Markdown</span>
+        </label>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <article class="md-content" id="content">
+      <!-- Content will be rendered here -->
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <p>本页面仅用于个人总结展示，不部署、不公开分享。</p>
+  </footer>
+
+  <script>
+    // Default embedded markdown content (mirror of personal-summary.md)
+    const defaultMarkdown = `# 个人年度总结
+
+> 用一句话概括这一年的核心主题与心境。
+
+---
+
+## 一、年度概览
+
+### 1.1 关键数据
+
+| 维度 | 数据 | 说明 |
+|------|------|------|
+| 项目/任务完成数 | 12 | 含主导与协作者身份 |
+| 学习投入时长 | 180 h | 阅读、课程、实践 |
+| 技能新增/深化 | 3 项 | 详见成长部分 |
+| 健康/运动天数 | 220 天 | 年均达标率 60% |
+
+### 1.2 年度关键词
+
+- **聚焦**：减少并行事务，深耕高价值领域
+- **沉淀**：建立可复用的工作流与知识库
+- **连接**：主动拓展协作网络
+
+---
+
+## 二、主要成果
+
+### 2.1 工作/学业成果
+
+1. **成果 A**
+   - 背景：简述问题或机会
+   - 行动：你做了什么
+   - 结果：可量化的产出或影响
+2. **成果 B**
+   - 背景：简述问题或机会
+   - 行动：你做了什么
+   - 结果：可量化的产出或影响
+3. **成果 C**
+   - 背景：简述问题或机会
+   - 行动：你做了什么
+   - 结果：可量化的产出或影响
+
+### 2.2 代表性项目
+
+- **项目名称 1**
+  - 时间：2024.03 — 2024.06
+  - 角色：负责人 / 核心成员
+  - 亮点：解决了什么关键问题
+  - 反思：如果重来，会优化哪一点
+- **项目名称 2**
+  - 时间：2024.07 — 2024.10
+  - 角色：负责人 / 核心成员
+  - 亮点：解决了什么关键问题
+  - 反思：如果重来，会优化哪一点
+
+---
+
+## 三、成长与收获
+
+### 3.1 能力提升
+
+- **硬技能**
+  - 技能 1：掌握程度 / 应用场景
+  - 技能 2：掌握程度 / 应用场景
+  - 技能 3：掌握程度 / 应用场景
+- **软技能**
+  - 沟通协作：具体进步点
+  - 时间管理：具体进步点
+  - 问题解决：具体进步点
+
+### 3.2 认知更新
+
+> 记录今年让你观念发生转变的一本书、一次对话或一个事件。
+
+- 旧认知：……
+- 新认知：……
+- 触发源：……
+
+### 3.3 值得骄傲的时刻
+
+1. 时刻 1：……
+2. 时刻 2：……
+3. 时刻 3：……
+
+---
+
+## 四、不足与反思
+
+### 4.1 主要短板
+
+| 短板 | 具体表现 | 根因分析 | 改进方向 |
+|------|----------|----------|----------|
+| 短板 1 | …… | …… | …… |
+| 短板 2 | …… | …… | …… |
+| 短板 3 | …… | …… | …… |
+
+### 4.2 遗憾事件
+
+- **事件**：……
+- **反思**：当时为何未能做到更好
+- **教训**：未来如何规避
+
+---
+
+## 五、下阶段计划
+
+### 5.1 年度目标
+
+1. **目标 1**：……（可衡量指标：……）
+2. **目标 2**：……（可衡量指标：……）
+3. **目标 3**：……（可衡量指标：……）
+
+### 5.2 关键行动
+
+- Q1：……
+- Q2：……
+- Q3：……
+- Q4：……
+
+### 5.3 需要的外部支持
+
+- ……
+- ……
+
+---
+
+## 六、致谢
+
+> 感谢这一年给予支持、启发与陪伴的人。
+
+- 家人 / 伴侣：……
+- 同事 / 导师：……
+- 朋友 / 社群：……
+
+---
+
+*本总结仅用于个人回顾与规划，不对外公开。*
+`;
+
+    const contentEl = document.getElementById('content');
+    const fileInput = document.getElementById('fileInput');
+    const statusEl = document.getElementById('status');
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function parseMarkdown(md) {
+      let html = md;
+
+      // Escape HTML in code blocks first
+      html = html.replace(/```([\s\S]*?)```/g, (match, code) => {
+        return `<pre><code>${escapeHtml(code.trim())}</code></pre>`;
+      });
+
+      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+      // Horizontal rules
+      html = html.replace(/^-{3,}$/gm, '<hr>');
+
+      // Headers
+      html = html.replace(/^###### (.*$)/gim, '<h6>$1</h6>');
+      html = html.replace(/^##### (.*$)/gim, '<h5>$1</h5>');
+      html = html.replace(/^#### (.*$)/gim, '<h4>$1</h4>');
+      html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+      html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+      html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+
+      // Bold & Italic
+      html = html.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
+      html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+      // Blockquotes
+      html = html.replace(/^> (.*$)/gim, '<blockquote><p>$1</p></blockquote>');
+      html = html.replace(/<\/blockquote>\s*<blockquote>/g, '');
+
+      // Tables
+      html = html.replace(/((?:\|.*\|(?:\r?\n)?)+)/g, (match) => {
+        const rows = match.trim().split(/\r?\n/).filter(r => r.trim());
+        if (rows.length < 2) return match;
+        // Check separator row
+        if (!/^\|?[\s\-:|]+\|?$/.test(rows[1])) return match;
+
+        const headerCells = rows[0].split('|').map(c => c.trim()).filter(c => c !== '');
+        const bodyRows = rows.slice(2);
+
+        let tableHtml = '<table><thead><tr>';
+        headerCells.forEach(cell => {
+          tableHtml += `<th>${cell}</th>`;
+        });
+        tableHtml += '</tr></thead><tbody>';
+
+        bodyRows.forEach(row => {
+          const cells = row.split('|').map(c => c.trim()).filter(c => c !== '');
+          if (cells.length === 0) return;
+          tableHtml += '<tr>';
+          cells.forEach(cell => {
+            tableHtml += `<td>${cell}</td>`;
+          });
+          tableHtml += '</tr>';
+        });
+
+        tableHtml += '</tbody></table>';
+        return tableHtml;
+      });
+
+      // Lists: parse contiguous list blocks into nested <ul>/<ol> trees
+      function renderListTree(node) {
+        if (!node.children || node.children.length === 0) return '';
+        const tag = node.ordered ? 'ol' : 'ul';
+        let out = `<${tag}>`;
+        for (const item of node.children) {
+          out += '<li>' + item.content;
+          for (const childList of item.children) {
+            out += renderListTree(childList);
+          }
+          out += '</li>';
+        }
+        out += `</${tag}>`;
+        return out;
+      }
+
+      function parseAndRenderLists(text) {
+        const lines = text.split(/\r?\n/);
+        const listItemRegex = /^(\s*)(?:([-+*])|(\d+)\.)\s+(.*)$/;
+        const indentUnit = 2;
+
+        const result = [];
+        let buffer = [];
+        let inList = false;
+
+        function flush() {
+          if (buffer.length === 0) return;
+          if (inList) {
+            result.push(renderListBlock(buffer));
+          } else {
+            result.push(buffer.join('\n'));
+          }
+          buffer = [];
+        }
+
+        function renderListBlock(items) {
+          const root = { ordered: items[0].ordered, children: [] };
+          const lists = [root]; // lists[d] holds items whose list depth is d
+
+          for (const item of items) {
+            const listDepth = item.depth - 1; // item depth 1 => root list depth 0
+
+            while (lists.length <= listDepth) {
+              const parentList = lists[lists.length - 1];
+              const lastItem = parentList.children[parentList.children.length - 1];
+              if (!lastItem) break;
+              const newList = { ordered: item.ordered, children: [] };
+              lastItem.children.push(newList);
+              lists.push(newList);
+            }
+
+            if (lists.length > listDepth + 1) {
+              lists.length = listDepth + 1;
+            }
+
+            if (lists[listDepth].ordered !== item.ordered && lists[listDepth].children.length > 0) {
+              const parentList = lists[listDepth - 1];
+              const lastItem = parentList.children[parentList.children.length - 1];
+              const newList = { ordered: item.ordered, children: [] };
+              if (lastItem) lastItem.children.push(newList);
+              lists[listDepth] = newList;
+            }
+
+            lists[listDepth].children.push({ content: item.content, children: [] });
+          }
+
+          return renderListTree(root);
+        }
+
+        for (const line of lines) {
+          const match = line.match(listItemRegex);
+          if (match) {
+            const indent = match[1].length;
+            const depth = Math.floor(indent / indentUnit) + 1;
+            const ordered = match[3] !== undefined;
+            const content = match[4];
+            if (!inList && buffer.length > 0) {
+              result.push(buffer.join('\n'));
+              buffer = [];
+            }
+            inList = true;
+            buffer.push({ depth, ordered, content });
+          } else {
+            if (inList) {
+              flush();
+              inList = false;
+            }
+            buffer.push(line);
+          }
+        }
+        flush();
+
+        return result.join('\n');
+      }
+
+      html = parseAndRenderLists(html);
+
+      // Paragraphs
+      const blocks = html.split(/\n\n+/);
+      html = blocks.map(block => {
+        const trimmed = block.trim();
+        if (!trimmed) return '';
+        if (/^<(h[1-6]|blockquote|pre|table|ul|ol|hr)/.test(trimmed)) return trimmed;
+        return `<p>${trimmed}</p>`;
+      }).join('\n\n');
+
+      return html;
+    }
+
+    function render(md) {
+      contentEl.innerHTML = parseMarkdown(md);
+    }
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        render(event.target.result);
+        statusEl.textContent = `已加载：${file.name}`;
+        statusEl.classList.add('visible');
+      };
+      reader.readAsText(file);
+    });
+
+    // Try to load personal-summary.md from the same directory (requires server)
+    fetch('personal-summary.md')
+      .then(res => res.ok ? res.text() : Promise.reject())
+      .then(md => render(md))
+      .catch(() => render(defaultMarkdown));
+  </script>
+</body>
+</html>
